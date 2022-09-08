@@ -1,0 +1,227 @@
+minikube ----> act as cluster
+
+#minikube start
+#minikube status
+#kubectl get nodes
+
+kubectl run ----> deploy a docker container and create a pod
+
+PODS                   ------->host a continer
+
+#kubectl run nginx --image=nginx
+           [pod name][image name]
+#kubectl describe pod nginx  ---> more details about nginx
+#kubectl create -f pod.yaml   ---> apply a yaml config file
+#kubectl get pods           ---->check the pods
+#kubectl get pods -o wide   ----> more details for pods
+#kubectl delete pod <podname> --> delete a pod
+
+=================
+Example app:
+#kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4 ----> create a deployment
+#kubectl expose deployment hello-minikube --type=NodePort --port=8080       -----> expose a deployment
+#minikube service hello-minikube --url                                     -----> will show the url for the app
+=================
+
+replication controller ----> high availability
+                       ----> load balacing & scaling
+replicaset             ----> newer replication controller version
+                       ----> selector is mandatory
+                       ----> monitor the pod and if a pod fails replica will create a new one
+					   ----> selector will match labels and know what pods to monitor
+					   
+#kubectl create -f replicaset-test.yml 			----> create a replicaset
+#kubectl get replicaset        			        ----> check replicaset
+#kubectl delete replicaset <name>   		    ----> delete replicaset
+#kubectl replace -f replicaset-test.yml			 ---> update or replace replicaset
+#kubectl scale -replicas=6 -f replicaset-test.yml---> scale replicaset
+#kubectl edit replicaset <name>                  ---> edit an existing configuration to scale up/down
+
+Deplyments                                   -------> use to update/rollback
+											 -------> to update modify version of the image in .yaml file and run again
+											 -------> default strategy update rolling updates one by one
+
+#kubectl get deployments
+#kubectl get all                             -------> show all pods/replicas/deplyments
+#kubectl describe deplyment <name>           -------> details about deployments
+#kubectl rollout status deplyment/<name>	 -------> see status of rollout
+#kubectl rollout history deployment/<name>   -------> see rev and history of rollout
+#kubectl rollout undo deployment/<name>		   -----> rollback to older version
+#kubectl apply -f <name.yaml>                 ------> to apply version changes
+#kubectl set image deployment/<name> nginx=nginx:1.9.7--> to set the new version for the update
+
+#kubectl cluster-info
+#kubectl describe pods
+#kubectl delete pods pod-php
+#kubectl apply -f coffeedeployment.yaml
+#kubectl edit deployment networkchuckcoffee-deployment
+#kubectl get deployments
+#kubectl get pods -o wide
+#kubectl get services
+#kubectl describe services coffee-service
+ export KUBECONFIG=kubeconfig.yaml
+
+====================================================
+
+[developer@localhost ~]$ minikube ip
+192.168.49.2
+
+[developer@localhost ~]$ minikube ssh                   ----> ssh to masternode/default password tcuser
+Last login: Thu Jul 14 12:25:31 2022 from 192.168.49.1
+docker@minikube:~$
+
+[developer@localhost ~]$ kubectl cluster-info
+Kubernetes control plane is running at https://192.168.49.2:8443
+CoreDNS is running at https://192.168.49.2:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+developer@localhost ~]$ kubectl get nodes
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   14m   v1.24.1
+[developer@localhost ~]$ kubectl get pods
+No resources found in default namespace.
+[developer@localhost ~]$ kubectl get namespaces  ---> use to group resources or config objects
+NAME              STATUS   AGE
+default           Active   15m
+kube-node-lease   Active   15m
+kube-public       Active   15m
+kube-system       Active   15m
+developer@localhost ~]$ kubectl get pods --namespace=kube-system    ----> check pods from namespace specific
+NAME                               READY   STATUS    RESTARTS      AGE
+coredns-6d4b75cb6d-btkzp           1/1     Running   1 (13m ago)   16m
+etcd-minikube                      1/1     Running   1 (13m ago)   16m
+kube-apiserver-minikube            1/1     Running   1 (13m ago)   16m
+kube-controller-manager-minikube   1/1     Running   1 (13m ago)   16m
+kube-proxy-bgv8b                   1/1     Running   1 (13m ago)   16m
+kube-scheduler-minikube            1/1     Running   1 (12m ago)   16m
+storage-provisioner                1/1     Running   3 (11m ago)   15m
+[developer@localhost ~]$ kubectl run nginx --image=nginx  ------> create a pod with nginx image
+pod/nginx created
+[developer@localhost ~]$ kubectl describe pod nginx       ------> information about pod
+Name:         nginx
+Namespace:    default
+Priority:     0
+Node:         minikube/192.168.49.2
+Start Time:   Thu, 14 Jul 2022 15:35:41 +0300
+Labels:       run=nginx
+Annotations:  <none>
+Status:       Running
+IP:           172.17.0.3
+
+[developer@localhost ~]$ minikube ssh
+Last login: Thu Jul 14 12:26:47 2022 from 192.168.49.1
+docker@minikube:~$ docker ps | grep nginx
+0ee6e17a9bbb   nginx                  "/docker-entrypoint.…"   5 minutes ago    Up 5 minutes              k8s_nginx_nginx_default_49f5c076-5c41-4531-805d-91bd3621ab39_0
+6c6f261dc7db   k8s.gcr.io/pause:3.6   "/pause"                 5 minutes ago    Up 5 minutes              k8s_POD_nginx_default_49f5c076-5c41-4531-805d-91bd3621ab39_0
+docker@minikube:~$ docker exec -it 0ee6e17a9bbb bash   ---------> you can connect to nginx container
+root@nginx:/# hostname
+nginx
+
+[developer@localhost ~]$ kubectl get pods -o wide        ------> mode details
+NAME    READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+nginx   1/1     Running   0          10m   172.17.0.3   minikube   <none>           <none>
+[developer@localhost ~]$ 
+
+[developer@localhost ~]$ kubectl delete pod nginx        -------> delete pods
+pod "nginx" deleted
+
+
+developer@localhost ~]$ kubectl create deployment nginx-deployment --image=nginx // -->create deployments nginx
+																					   in order to scale pods add replicas
+deployment.apps/nginx-deployment created
+[developer@localhost ~]$ kubectl get deployments
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment   1/1     1            1           9s
+[developer@localhost ~]$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-85c6d5f6dd-gs4bg   1/1     Running   0          18s
+[developer@localhost ~]$ kubectl describe deployment nginx-deployment   ----> details about deployments
+Name:                   nginx-deployment
+Namespace:              default
+CreationTimestamp:      Thu, 14 Jul 2022 15:53:41 +0300
+Labels:                 app=nginx-deployment
+
+[developer@localhost ~]$ kubectl scale deployment nginx-deployment --replicas=5  ---> create replica pod
+deployment.apps/nginx-deployment scaled
+[developer@localhost ~]$ kubectl get pods
+
+NAME                                READY   STATUS              RESTARTS   AGE
+nginx-deployment-85c6d5f6dd-8swj9   0/1     ContainerCreating   0          59s
+nginx-deployment-85c6d5f6dd-g7kkr   0/1     ContainerCreating   0          59s
+nginx-deployment-85c6d5f6dd-gs4bg   1/1     Running             0          11m
+nginx-deployment-85c6d5f6dd-l8x5g   0/1     ContainerCreating   0          59s
+nginx-deployment-85c6d5f6dd-n8zdq   0/1     ContainerCreating   0          59s
+<deploy name> <belong to replicaset 85c6d5f6dd>  <pod id n8zdq>
+
+[developer@localhost ~]$ kubectl scale deployment nginx-deployment --replicas=3  ---> scale down from 5->3
+deployment.apps/nginx-deployment scaled
+[developer@localhost ~]$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-85c6d5f6dd-8swj9   1/1     Running   0          5m27s
+nginx-deployment-85c6d5f6dd-gs4bg   1/1     Running   0          16m
+nginx-deployment-85c6d5f6dd-l8x5g   1/1     Running   0          5m27s
+
+
+[developer@localhost ~]$ kubectl expose deployment nginx-deployment --port=8080 --target-port=80
+service/nginx-deployment exposed
+--> expose nginx to external using a expose and create a service
+
+[developer@localhost ~]$ kubectl get services
+NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+kubernetes         ClusterIP   10.96.0.1        <none>        443/TCP    62m
+nginx-deployment   ClusterIP   10.109.120.107   <none>        8080/TCP   15s
+
+---> will create cluster ip .107 and now ssh to node and using only .107 you can connect to any of the pods
+
+[developer@localhost ~]$ kubectl describe service nginx-deployment  ---> more details for the service
+Name:              nginx-deployment
+Namespace:         default
+Labels:            app=nginx-deployment
+Annotations:       <none>
+
+[developer@localhost ~]$ kubectl delete deployment nginx-deployment  -----> delete deployment
+deployment.apps "nginx-deployment" deleted
+[developer@localhost ~]$ kubectl delete service nginx-deployment      -----> delete service
+service "nginx-deployment" deleted
+
+
+[developer@localhost ~]$ kubectl expose deployment k8s-web-hello1 --type=NodePort --port=3000
+service/k8s-web-hello1 exposed                        --->connect directly using node ip
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+k8s-web-hello1   NodePort    10.109.69.115   <none>        3000:31549/TCP   23s
+kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP          4h15m
+[developer@localhost ~]$ minikube ip
+192.168.49.2
+
+------------> now you can connect to broswer using minikube ip and 192.168.49.2:31549
+------------> or #minikube service k8s-web-hello1 to start directly the browser from console
+
+[developer@localhost ~]$ kubectl expose deployment k8s-web-hello1 --type=LoadBalancer --port=3000
+service/k8s-web-hello1 exposed          --------------------> create a LoadBalancer to behave like above
+[developer@localhost ~]$ kubectl get services
+NAME             TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+k8s-web-hello1   LoadBalancer   10.98.102.76   <pending>     3000:32694/TCP   10s
+kubernetes       ClusterIP      10.96.0.1      <none>        443/TCP          4h44m
+
+
+
+[developer@localhost ~]$ kubectl describe deployment k8s-web-hello1
+Name:                   k8s-web-hello1
+Namespace:              default
+CreationTimestamp:      Fri, 15 Jul 2022 15:48:29 +0300
+Labels:                 app=k8s-web-hello1
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=k8s-web-hello1
+Replicas:               4 desired | 4 updated | 4 total | 4 available | 0 unavailable
+StrategyType:           RollingUpdate ----> use to update app version by adding new pods but keep the older
+											pods to avoid downtime
+											
+#kubectl delet pod <>                -->to delete a pod
+---> will be recreated again after the deletion since desire pods are 4
+
+[developer@localhost ~]$ minikube dashboard  ----> open dashboard
+
+[developer@localhost ~]$ kubectl delete all --all     -------> all resources will be deleted
+
+ kubectl apply -f deployment.yaml               --------> apply deployment

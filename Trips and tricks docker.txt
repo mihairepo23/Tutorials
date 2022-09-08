@@ -1,0 +1,7 @@
+docker images | grep none | awk '{ print $3; }' | xargs docker rmi --- remove multiple docker iamges
+docker image prune --all --force                                  ---- remove all images
+docker system prune -a -f                                          -- clean up docker partition
+docker rm -f $(docker ps -a -q)                                     ---remove all
+
+su -s /bin/bash jenkins
+sudo xfs_repair -v -L /dev/dm-0

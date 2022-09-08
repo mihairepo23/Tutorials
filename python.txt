@@ -1,0 +1,151 @@
+==variables==
+
+age = 20            -----> integer   int()
+price = 19.95       ------> float    float()
+first_name = "Hoppy" ----> string    str()
+is_online = False   ----->  boolean  bool()
+print (age)
+
+==input from user==
+
+name = input ("What is your name? ")
+print ("Hello " + name)
+
+==conversions==
+
+birth_year = input ("Enter your bith year: ")
+age = 2022 - int(birth_year)
+print (age)
+
+first_number = input ("First: ")
+second_number = input ("Second: ")
+sum = float(first_number) + int(second_number)
+print ("Sum= " + str(sum))
+
+first_number = float(input ("First: "))
+second_number = float(input ("Second: "))
+sum = first_number + second_number
+print ("Sum= " + str(sum))
+
+==string==
+
+course = 'python for beginners'
+print(course.upper())
+
+==math==
+
+print (10/3) ----> 3.333
+print (10//3)  --> 3 (only the integer part)
+
+x = 10
+x -= 3        ----> Will decrease x value by 3
+print (x)  = 7
+
+==Comparison operator==
+
+>
+>=
+<
+<==
+==
+!=
+
+==logical operators
+
+price = 25
+print (price > 10 and price < 30) ----> True
+print (price > 10 or price < 30)  ----> True
+
+price = 5
+print (not price > 10)             ---> True
+
+and   ----> both
+or    ----> at least one
+not   ----> invert the result
+
+==if statement=
+
+temperature = 35
+if temperature > 30:         ---> : means indented (replace { })
+    print ("Is a hot day")   ---> print will run only if the if condition is true	
+elif temperature > 20:       ---> elseif will verify first if and run if is false
+    print ("Is a nice day")
+else:                        ---> will execute only if above conditions are false
+    print ("Is cold")
+	
+==while loops==
+
+i = 1
+while i <= 5:
+    print (i)
+    i = i + 1     ----> while will run in loop until i = 5
+	
+==lists==
+
+[]
+names = ["John", "Ana", "Bob", "Sam", "Mary"]
+#           0       1     2      3      4
+names [0] = "Jon"       ----> will replace John with Jon
+print (names[0])        ----> John
+print (names[-1])       ----> Mary 
+print (names[0:3])      ----> will print 0 1 2 (will exclude 3)
+print (Ana in names)    ----> will check if Ana is in names are return true
+print (len(names))      ----> will count how many elements are in the names R:5
+
+==for loops==
+
+numbers = [1, 2, 3, 4, 5]
+for item in numbers:     -----> will loop all the paramters in numbers
+    print (item)         -----> R:1
+	                              2
+								  3
+								  4
+								  5
+#using while
+i=0
+while i < len(numbers):   0 < 5   and is True  R:0
+    print (numbers[i])    print from numbers index 0  R:1
+    i = i + 1             increment the loop with 1 until 5 to verify the while statement
+						  R:1
+						    2
+							3
+							4
+							5
+							
+==range==
+
+numbers = range(5)       ----> 0 1 2 3 4 (NOT 5)
+for number in numbers:   ----> will count 0 1 2 3 4
+    print(number)        -----> R:0
+								  1
+								  2
+								  3
+								  4
+
+numbers = range(5, 10)   ----> 5 is the first value and 9 is the last (will exclude 10)
+for number in numbers:
+    print(number)        -----> R:5
+								  6
+								  7
+								  8
+								  9
+==tuples==
+
+()
+numbers = (1, 2, 3,)
+tuples means the numbers are imutable, you cannot change them once you create them
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

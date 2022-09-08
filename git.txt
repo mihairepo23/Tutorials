@@ -1,0 +1,39 @@
+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
+
+=================
+
+git init  ----> initialize repo, .git folder is created
+git status ---> check status of the repo
+
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#       text1.txt
+---------------------> nu este urmarit de git (untracked)
+
+git add text1.txt --> add text to be followed by git
+git add .         --> add all the files from the folder to be followed by git 
+
+            staging= git will follow any changes added to the file
+			
+git commit -m "initial commit" --> to monitoring a file changes you must use commit
+git log                       ---> check all commits history
+git checkout -- <file>         --> to discard changes in in working directory
+
+.gitignore file               --> add all the files that are not related to git and git will ignore them
+                                  ex: nano .gitignore and use file.txt to ignore file.txt or *.txt to ignore all txt files
+git branch                   ----> check branch
+git branch test              ----> create a new branch
+git checkout test
+Switched to branch 'test'     ----> switch branch
+git checkout -b dev           ----> create and change to branch dev
+git branch -D test            ----> delete branch test
+git merge <branch name>       ----> merge a branch with your curent branch (synchronizing all files between them)
+
+git remote add origin https:.. --> add new repo from github.com
+git remote -v                 ----> check all remote repos available
+git push -u origin master     ----> push all the commits to remote repo in github.com 
+                                     -u = all the git push will be from master local to master repo
+git push                      ----> after first push you can use only git push to push commits
+git fetch                     ----> check in github.com any modification on a file
+git clone <https//...>         ---> clone from github.com to local

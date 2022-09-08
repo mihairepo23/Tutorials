@@ -1,0 +1,778 @@
+pipeline {
+    agent any
+
+    stages {
+         stage('Build') {
+             steps{
+                script{
+                  def name = "Mihai"
+                  if (name == "Mihai")
+                    printIn("hi ${name}")
+                  else
+                    printIn("Hi stranger")
+                  sleep 2
+                  echo "End of line"
+
+                }
+             }
+             
+         }
+    }
+}
+
+#RETRY AND TIMEOUT
+
+         stage('Build') {
+             steps{
+                retry(3) {
+                    echo "before error"
+                    error "error in retry"
+                }
+                echo "after retry(3)"
+             }
+			 
+
+         stage('Build') {
+             steps{
+                timeout(time: 1, units: 'SECONDS') //DAYS,HOURS,MINUTES
+                {
+                    echo "sleeping in timeout"
+                    slepp 2
+                }
+             }
+			 
+#TOOLS
+
+    stages {
+         stage('Build') {
+             tools {
+               maven 'maven 3.0.5-17'
+             }
+         steps {
+             sh '/usr/local/maven/bin/mvn --version'
+
+             }
+			 
+			 
+#ERROR RETRY
+
+         stage('Build') {
+              options {
+                  retry(3)
+              }
+              steps{
+                  echo "before error"
+                  error "error statement got executed"
+                  echo "after error"
+              }
+
+#TIMESTAMPS
+			  
+         stage('Build') {
+            options {
+               timestamps()
+            }
+            steps {
+               echo "Hello Mihai"
+               echo "Hello Mihai again"
+            }
+         }
+         stage('test'){
+            steps {
+               echo "Hello Mihai notime"
+               echo "Hello Mihai again notime"
+            }
+			
+pipeline {
+    agent any
+
+            options {  
+               timestamps()
+            }
+
+===========> to display the timestamp everytime
+
+#SKIP DEFAULT CHECKOUT
+
+pipeline{
+     agent any 
+	    options {
+		 skipdefaultCheckout()
+		 }
+	}	 
+	
+==========> to skip all the changes made on files from GIT repo
+
+#ENVIRONMENT
+
+    agent any
+    environment {
+        name1 = "Mihai"
+        name2 = "Andrei"
+    }
+
+    stages {
+         stage('Build') {
+             environment {
+                 name3 = "Jamie"
+                   }
+            steps {
+                echo "name1 ${name1}"
+                echo "name2 ${name2}"
+                echo "name3 ${name3}"
+            }
+#
+#credentials
+
+    agent any
+
+    stages {
+      stage ('Build') {
+          environment {
+            SOME_USERNAME_PASSWORD = credentials('some_username_password')
+            SOME_SECRET = credentials('some_secret')
+          }
+           steps {
+               echo "SOME_USERNAME_PASSWORD $(SOME_USERNAME_PASSWORD)"
+               echo "SOME_USERNAME_PASSWORD_USR $(SOME_USERNAME_PASSWORD_USR)"
+               echo "SOME_USERNAME_PASSWORD_PSW $(SOME_USERNAME_PASSWORD_PSW)"
+               echo "SOME_SECRET $(SOME_SECRET)"
+           }
+		 
+		 
+USER_CREDENTIALS = credentials('artifactory')
+sh "docker login -u $USER_CREDENTIALS_USR -p $USER_CREDENTIALS_PSW 192.168.172.145:8082"
+
+#WHEN
+
+ agent any
+    environment{
+       DEPLOY_TO='production'
+    }
+    stages {
+      stage ('Build') {
+          when {
+              environment name: 'DEPLOY_TO', value: 'production'
+          }
+          steps {
+              echo 'deploying'
+          }
+		  
+#EQUALS
+
+  agent any
+    environment{
+       some_name="Mihai"
+    }
+    stages {
+      stage ('Build') {
+          when {
+              equals expected: "Mihai", actual: some_name
+          }
+          steps {
+              echo "${some_name}"
+          }
+		  
+#NOT
+
+pipeline {
+    agent any
+    environment{
+       some_name="Andrei"
+    }
+    stages {
+      stage ('Build') {
+          when {
+              not{
+              equals expected: "Mihai", actual: some_name
+              }
+          }
+          steps {
+              echo "${some_name}"
+          }
+		  
+#EXPRESSION 
+
+pipeline {
+    agent any
+    environment{
+       version = "1.0"
+    }
+    stages {
+      stage ('Build') {
+          when {
+              expression{
+              version == "1.0"
+              }
+          }
+          steps {
+              echo "Build ${version}"
+          }
+
+#anyOf
+
+pipeline {
+    agent any
+    environment{
+       version = "3.0"
+       some_name="Mihai"
+    }
+    stages {
+      stage ('Build') {
+          when {
+              anyOf{
+              environment name: "version" , value: "1.0"
+              environment name: "some_name" , value: "Mihai"
+              }
+          }
+          steps {
+              echo "Build anyOf ${version} ${some_name}"
+          }
+
+#allOf
+
+pipeline {
+    agent any
+    environment{
+       version = "1.0"
+       some_name="Mihai"
+    }
+    stages {
+      stage ('Build') {
+          when {
+              allOf{
+              environment name: "version" , value: "1.0"
+              environment name: "some_name" , value: "Mihai"
+              }
+          }
+          steps {
+              echo "Build allOf ${version} ${some_name}"
+          }
+      }
+#BRENCH
+
+    agent any
+    stages {
+        stage('Build Master') {
+            when {
+                branch 'master'
+            }
+            steps {
+                echo 'Building master'
+            }
+        }
+        stage('Build Dev') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                echo 'Building dev'
+
+#CHANGELOG
+
+    agent any
+    stages {
+        stage('Build Master') {
+            when {
+                changelog '.*some_text.*
+				}
+			steps{
+			    echo 'hello world changelog'
+			}	
+		}
+
+#CHANGEREQUEST
+
+    agent any
+	
+    stages {
+        stage('Build') {
+		
+			when{
+				changeRequest title:"when-pr"
+			}
+		
+            steps {                
+                echo 'Hello World changing request'
+            }
+
+#CHANGESET
+
+pipeline {
+  agent any
+  stages {
+    stage ('build') {
+      when {
+         changeset glob: "*.js"
+      }
+      steps{
+        echo 'Hello world changeset JS'
+           }
+    }
+  }
+}  
+  
+#Parallel
+
+pipeline {
+    agent any
+    stages {
+      stage ('Stage running in parallel') {
+          failFast true
+          parallel{
+             stage('stage1') {
+                 steps{
+                    echo "stage1 executing"
+                    sleep 10
+                 }
+             }
+             stage('stage2') {
+                steps {
+                    echo "stage2 executing"
+					sleep 10
+                }
+             }
+             stage('stage3') {
+                steps{
+                    echo "stage3 executing"
+					sleep 10
+                }
+				
+failFast  ------------------------------------> Set to true, means if a stage fail, all of them should fail
+
+#POST
+
+pipeline {
+    agent any
+
+    stages {
+      stage ('Build') {
+        steps {
+            echo 'building'
+        }
+      }
+    }     
+
+   post{
+    //Run of the curent stage`s has a success status
+    success{
+        echo 'post succes'
+    }
+    //Run if the current stage`s has a failed status
+    failure{
+        echo 'post failure'
+    }
+    //Run if the current status of stages run
+    always{
+        echo 'post always'
+    }
+  }
+
+#buildDiscarder
+pipeline {
+    agent any
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '1'))
+    }
+    stages {
+      stage ('Build') {
+        steps {
+            echo "hello world"
+        }
+
+
+-------------------> specify how many number of build to keep
+
+
+#DISABLE CONCURENT BUILDS
+
+pipeline {
+    agent any
+    options {
+        disableConcurrentBuilds()
+    }
+    stages {
+      stage ('Build') {
+        steps {
+            sleep (time: 10, unit: 'SECONDS')
+            echo "hello world"
+        }
+
+#SKIP STAGES AFTER UNSTABLE
+
+pipeline {
+    agent any
+    options {
+        skipStagesAfterUnstable()
+    }
+    stages {
+      stage ('Build') {
+        steps {
+            echo "setting current build to unstable"
+        script{
+            currentBuild.result = 'UNSTABLE'
+         }
+        }
+      }
+      stage ('Deploy'){
+        steps{
+            echo "deploy is running"
+        }
+
+#CHECKOUT TO SUBDIRECTORY
+
+pipeline {	
+    agent any	
+	options { 
+		checkoutToSubdirectory('someSubDir') 
+	}
+    stages {	
+        stage('Build') {	
+            steps {                	
+                echo 'Hello World'	
+            }	
+			
+#NEW CONTAINER PER STAGES
+
+pipeline {
+    agent {
+      docker{
+        image 'ubuntu:latest'
+      }
+    }  
+    options{
+      newContainerPerStage()
+    }
+    stages{
+      stage('Build'){
+        steps{
+          sh 'cat /etc/lsb-release'
+        }
+      }
+      stage('Deploy'){
+        steps{
+          sh 'cat /etc/lsb-release'
+        }
+		
+#CRON 
+
+pipeline {
+    agent any
+    triggers {
+      cron('0 1 2 3 1-7')
+    }
+    stages{
+      stage('Build') {
+        steps {
+          echo 'Hello Mihai'
+        }
+		
+#PollSCM
+
+pipeline {
+    agent any
+    triggers {
+       pollSCM('* * * * *')
+    }
+    stages {
+      stage('Build'){
+        steps{
+          checkout([$class: 'GitSCM',
+          branches: [[name: 'origin/master']],
+          userRemoteConfigs: [[
+            url: 'https://github.com/pipelineascodecourse/pipeline-triggers-pollSCM.git']]])
+        }
+	----------------------------->"Poll SCM" polls the SCM periodically for checking if any changes/ new commits were made and shall build the project if any new commits 
+	                       were pushed since the last build, whereas the "build" shall build the project periodically irrespective to whether or not any changes were made.	
+ 
+#UPSTREAM
+
+pipeline {
+    agent any
+    triggers {
+       upstream(upstreamProjects: 'Pipeline_Upstream_job1,Pipeline_Upstream_job2',
+       threshold: hudson.model.Result.SUCCESS) //UNSTABLE, FAILURE, NOT_BUILD, ABORTED
+    }
+    stages {
+      stage('Build'){
+        steps{
+          echo 'pipeline-triggers-upstream executed'
+        }
+      }
+    }
+}
+=================================
+pipeline {
+    agent any
+    stages {
+     stage('Build'){
+       steps {
+         echo "pipeline-triggers-upstream-job1 executed"
+       }
+     }
+  }
+} 
+=================================
+
+pipeline {
+    agent any
+    stages {
+     stage('Build'){
+       steps {
+         echo "pipeline-triggers-upstream-job2 executed"
+       }
+     }
+  }
+} 
+ 
+-----------------------------> run job1 or job2 and main job will start by itself
+
+#DOCKER
+
+pipeline {
+    agent {
+      docker{
+        image 'maven:latest'
+      }
+    }
+    stages{
+      stage('Build'){
+       steps{
+         sh 'mvn -v'
+       }
+	   
+#DOCKER ARGS
+
+pipeline {
+    agent {
+      docker{
+        image 'maven:latest'
+        args '-e someEnv=dev'
+      }
+    }
+    stages{
+      stage('Build'){
+       steps{
+         sh 'echo $someEnv'
+       }
+
+#DOCKER CUSTOMWORKSPACE
+
+pipeline {
+    agent {
+      docker{
+        image 'maven:latest'
+        args '-e someEnv=dev'
+        alwaysPull true
+        customWorkspace '/var/lib/jenkins/workplace/mycustomeworkplace'
+      }
+    }
+    stages{
+      stage('Build'){
+       steps{
+         sh 'echo $someEnv'
+       }
+
+#DOCKER LABEL
+
+  pipeline {
+    agent {
+      docker{
+        image 'maven:latest'
+        label'Slave_node'
+      }
+    }
+    stages{
+      stage('Build'){
+       steps{
+         sh 'mvn -v'
+       }
+	   
+--------------> run the job on the other node.
+
+#DOCKER_REUSENODE
+
+pipeline {
+    agent {
+        label'Built-In Node'
+    }
+    stages{
+      stage('Build'){
+    agent {
+      docker{
+        image 'maven:latest'
+        label'Slave_node'
+      }
+    }
+    steps {
+      sh 'mvn -v'
+    }
+  } 
+   stage('Deploy') {
+     agent {
+     docker {
+       image 'ubuntu:16:04'
+       reuseNode true
+     }
+   }
+    steps {
+      sh 'printenv'
+     }
+   }
+ }
+
+#DOCKER_FILE
+
+pipeline {
+    agent none
+    stages {
+      stage('Checkout'){
+        agent any
+        steps{
+          checkout([$class: 'GitSCM',
+          branches: [[name: 'origin/master']],
+          userRemoteConfigs: [[
+            url: 'https://github.com/pipelineascodecourse/pipeline-agent-dockerfile.git']]])
+        }
+      }
+      stage('Build'){
+        agent {
+          dockerfile true
+        }
+        steps {
+          sh 'cat /etc/lsb-release'
+        }
+      }  
+    }  
+ }  
+ 
+#DOCKER FILE DIR
+
+pipeline {
+    agent none
+    stages {
+      stage('Checkout'){
+        agent any
+        steps{
+          checkout([$class: 'GitSCM',
+          branches: [[name: 'origin/master']],
+          userRemoteConfigs: [[
+            url: 'https://github.com/pipelineascodecourse/pipeline-agent-dockerfile-dir.git']]])
+        }
+      }
+      stage('Build'){
+        agent {
+          dockerfile {
+            dir 'dockerfileDir'
+          }
+        }
+        steps {
+          sh 'cat /etc/lsb-release'
+        }
+      }  
+    
+#DOCKEFILE FILE NAME
+
+pipeline {
+    agent none
+    stages {
+      stage('Checkout'){
+        agent any
+        steps{
+          checkout([$class: 'GitSCM',
+          branches: [[name: 'origin/master']],
+          userRemoteConfigs: [[
+            url: 'https://github.com/pipelineascodecourse/pipeline-agent-dockerfile-filename']]])
+        }
+      }
+      stage('Build'){
+        agent {
+          dockerfile {
+            filename 'myCustomNameDockerfile'
+          }
+        }
+        steps {
+          sh 'cat /etc/lsb-release'
+        }
+
+#DOCKERFILE ADDITIONAL BUILD ARGS
+pipeline {
+    agent none
+    stages {
+      stage('Checkout'){
+        agent any
+        steps{
+          checkout([$class: 'GitSCM',
+          branches: [[name: 'origin/master']],
+          userRemoteConfigs: [[
+            url: 'https://github.com/pipelineascodecourse/pipeline-agent-dockerfile.git']]])
+        }
+      }
+      stage('Build'){
+        agent {
+          dockerfile {
+            additionalBuildArgs '-- tag mydockerfile:example'
+          }
+        }
+        steps {
+          sh 'cat /etc/lsb-release'
+        }
+      }  
+
+# DOCKERFILE ADDITIONAL BUILD ARGUMENTS
+
+pipeline {
+    agent none
+    stages {
+      stage('Checkout'){
+        agent any
+        steps{
+          checkout([$class: 'GitSCM',
+          branches: [[name: 'origin/master']],
+          userRemoteConfigs: [[
+            url: 'https://github.com/pipelineascodecourse/pipeline-agent-dockerfile']]])
+        }
+      }
+      stage('dockerfile'){
+        agent {
+          dockerfile {
+            additionalBuildArgs '-- tag mydockerfile:example'
+          }
+        }
+        steps {
+          sh 'cat /etc/lsb-release'
+        }
+      }  
+	  
+# OUTSIDE SCRIPT
+
+def nameofPerson = "Mihai"
+
+def printName(name) {
+  echo name
+}
+
+pipeline {
+    agent any
+    stages{
+      stage('Build') {
+        steps{
+          script{
+            printName(nameofPerson)
+          }
+        }
+      }
+    }
+} 
+PARAMETERS
+
+   parameters {
+        string(name: 'VERSION', defaultValue: '', description: 'version to deploy on prod')
+    }
+	.............
+	.............
+	    stage ('Docker run') {
+        steps {
+             sh 'docker run -p ${dockerports} -d --name nodejs nodejs_app'
+             echo "deploying version ${params.VERSION}"
+            }

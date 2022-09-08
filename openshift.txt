@@ -1,0 +1,53 @@
+OpenShift server started.
+
+The server is accessible via web console at:
+    https://192.168.99.100:8443/console
+
+You are logged in as:
+    User:     developer
+    Password: <any value>
+
+To login as administrator:
+    oc login -u system:admin
+================
+
+oc login -u system:admin   --------> to login to console from windows
+if is not working:
+#minishift oc-env  
+run from the output set line as per ex: SET PATH=C:\Users\Motanul\.minishift\cache\oc\v3.11.0\windows;%PATH%
+
+
+oc login -u admin -p admin
+oc whoami -t               ------> in case you need a token
+oc rollout latest <deploymant name>   ---> triger build
+oc rollout history <deploymant name>  ---> history of builds-builds-configuration
+oc rollout describe <deploymant name> ---> detailed information about a deploymant
+oc roolout undo <deployment name>     ---> rollback a deploymant
+users: regular users / system users  / service accounts
+
+OAuth Server
+---> Allow all  --> allow all the users to login when they try ... with any passowrd typed
+---> Deny all   --> will not allow to login 
+
+/etc/openshift/master/master-config.yaml
+
+oc get projects   ---> list all projects
+oc get users      ---> list all users
+oc adm policy add-cluster-role-to-user cluster-admin administrator  ---> grant cluster admin role to user administrator
+
+build strategy
+
+source to image
+dockerbuild strategy
+
+webhooks --->any changes in github/bitbucket app code will automate triger a new build on openshift
+			url for webhook to past in github/bit : builds-builds-configuration
+			
+
+
+DEPLOY STRATEGY			
+Strategy:
+- Rolling  --> means in case of multiple replicas the update will be one by one and destroy after the old one
+- Recreate --> destroy all replica create new replica app version
+
+

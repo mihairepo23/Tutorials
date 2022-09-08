@@ -1,0 +1,193 @@
+ansible target1 -m ping -i inventory.txt ---------> how to check  (for ssh key error run : export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i)
+ansible all -m apt -a update_cache=true --become --ask-become-pass
+BECOME password:   ----> -m module apt | -a use argument for that module | --become = sudo privileges 
+                          --ask-become-pass= request sudo pass
+ansible all -m apt -a name=vim-nox --become --ask-become-pass ---> install a package remote
+ansible all -m apt -a name="vim-nox state=latest" --become --ask-become-pass --> update vim-nox to last vers (use ")
+ansible all -m gather_facts --limit 192.168.244.145 | grep ansible_distribution -> check distro
+ansible-playbook --tags ubuntu --ask-become-pass site.yml	--->run just specific tags					  
+ansible-doc -l                       -------------> list of modules
+ansible-playbook <pbname>            -------------> run a playbook
+ansible <hosts> -a <command>          ------------> run simple commands without yaml
+ansible <hosts> -m <module>           ------------> run a module 
+ansible-galaxy search mysql           ------------> searching for a role
+ansible-galaxy install mysql          ------------> installing a role
+ansible-galaxy list                   ------------> check the local roles
+ansible-config dump  
+
+INVENTORY FILE ---------> etc/ansible/hosts
+ROLE DEFAULT LOCATION---> etc/ansible/roles
+
+Example
+
+# Web Servers
+web1 ansible_host=server1.company.com ansible_connection=ssh ansible_user=root ansible_ssh_pass=Password123!
+web2 ansible_host=server2.company.com ansible_connection=ssh ansible_user=root ansible_ssh_pass=Password123!
+web3 ansible_host=server3.company.com ansible_connection=ssh ansible_user=root ansible_ssh_pass=Password123!
+
+# Database Servers
+db1 ansible_host=server4.company.com ansible_connection=winrm ansible_user=administrator ansible_password=Password123!
+
+
+[web_servers]   ------> groups
+web1
+web2
+web3
+
+[db_servers]
+db1
+
+
+[all_servers:children]  ---> groups all in one group
+web_servers
+db_servers
+
+
+YAML FILE ------->
+Example:
+
+- name: Update web servers
+  hosts: webservers
+  remote_user: root
+
+  tasks:
+  - name: Ensure apache is at the latest version
+    ansible.builtin.yum:
+      name: httpd
+      state: latest
+  - name: Write the apache config file
+    ansible.builtin.template:
+      src: /srv/httpd.j2
+      dest: /etc/httpd.conf
+
+- name: Update db servers
+  hosts: databases
+  remote_user: root
+======================================
+
+    name: 'Execute a script on all web server nodes'
+    hosts: web_nodes
+    tasks:
+        -
+            name: 'Execute a script on all web server nodes'
+            script: /tmp/install_script.sh
+			
+=======================================
+
+            name: 'Start httpd service'
+            service: 'name=httpd state=started' ------------------> service=module
+			
+======================================
+
+            name: 'Create a new user'
+            user:
+                name: web_user
+                uid: 1040
+                group: developers
+				
+=======================================
+
+            name: 'Disable SNMP Port'
+            firewalld:
+                port: '{{ snmp_port }}'  ------------------------->'{{ snmp_port }}' =variable
+                permanent: true
+                state: disabled
+
+Note: Modify the inventory file like : localhost ansible_connection=localhost nameserver_ip=10.1.250.10 snmp_port=160-161
+=======================================
+
+    vars:----------------------------------------------------------> variable
+        car_model: 'BMW M3'
+        country_name: USA
+        title: 'Systems Engineer'
+    tasks:
+        -
+            command: 'echo "My car''s model is {{ car_model }}"'
+        -
+            command: 'echo "I live in the {{ country_name }}"'
+        -
+            command: 'echo "I work as a {{ title }}"'
+	
+==========================================
+            service: 'name=mysql state=started'
+            when: 'ansible_host=="server4.company.com"'  ------------->when= condition
+	
+==========================================
+
+    vars:
+        age: 25
+    tasks:
+        -
+            command: 'echo "I am a Child"'
+            when: 'age < 18'
+        -
+            command: 'echo "I am an Adult"'
+            when: 'age >= 18'
+			
+==========================================
+			
+#			with_items:                               ------------------> with_ lookup plugin
+			
+			   vars:
+        fruits:
+            - Apple
+            - Banana
+            - Grapes
+            - Orange
+    tasks:
+        -
+            command: 'echo "{{ item }}"'
+            with_items: '{{ fruits }}'
+			
+			
+			
+				vars:
+					packages:
+						- httpd
+						- binutils
+						- glibc
+						- ksh
+						- libaio
+						- libXext
+						- gcc
+						- make
+						- sysstat
+						- unixODBC
+						- mongodb
+						- nodejs
+						- grunt
+				tasks:
+					-
+						yum: 
+							name: '{{ item }}' 
+							state: present
+						with_items: '{{ packages }}'
+			
+===========================================
+					tasks:
+					host: localhost
+					tasks:
+					 - user: name='{{ item.name }}' state=present uid='{{ intem.uid }}'
+					   loop:---------------------------------------------------------> loop
+					    - name:joe
+					      uid:1010
+						- name:george
+						  uid:1015
+					
+=========================================
+#ansible-galaxy install mysql          -------------------------------------------->how to install and run a role 
+
+					tasks:
+					host: localhost
+					role:
+					 - test.mysql 
+
+                 ------------> check ansible parameters
+
+
+       eval $(ssh-agent)
+   51  ps -eaux | grep 7033
+   52  clear
+   53  ssh-add
+   54  ssh -i ~/.ssh/ansible 192.168.244.146
+   55  history
